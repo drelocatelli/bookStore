@@ -12,6 +12,5 @@ import java.util.UUID;
 @Repository
 public interface BookRepository extends JpaRepository<Book, UUID> {
 
-	@Query("SELECT b FROM Book b WHERE b.title LIKE %:title% ORDER BY b.title DESC")
-	List<Book> findAllByTitle(@Param("title") String title);
+	List<Book> findByTitleIgnoreCaseContaining(String title);
 }

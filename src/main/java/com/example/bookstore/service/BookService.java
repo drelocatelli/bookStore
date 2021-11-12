@@ -17,8 +17,8 @@ public class BookService {
 		return repository.findAll();
 	}
 
-	public List<Book> findAllByTitle(String title) {
-		return repository.findAllByTitle(title);
+	public List<Book> findByTitleIgnoreCaseContaining(String title) {
+		return repository.findByTitleIgnoreCaseContaining(title);
 	}
 
 	public Book saveBook(Book book) {
