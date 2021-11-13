@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Navbar from '../Components/Navbar';
 import {Grid, Box, Container, Typography, TextField, Button, Link} from "@material-ui/core";
 
 import ApiService from '../Service/ApiService';
 import {Alert} from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "../Authentication/AuthProvider";
 import Cookies from 'js-cookie';
 
 export default() => {
@@ -16,6 +17,24 @@ export default() => {
 
     const navigate = useNavigate();
 
+    const auth = useAuth();
+
+    // check if already logged
+    useEffect(() => {
+        ApiService().get('/users/me', {
+            headers: {
+                'Authorization': `Bearer ${Cookies.get("token")}`, 
+                'Access-Control-Allow-Origin': '*'
+            }
+        }).then(response => {
+            auth.changeToAuth(() => navigate('/main'))
+        }).catch(err => {
+            auth.logout()
+        })
+    }, [])
+
+
+    // do login
     function Login(e) {
         e.preventDefault();
 
@@ -34,7 +53,7 @@ export default() => {
                 setMessage(`You're logged in`);
 
                 setTimeout(() => {
-                    navigate('/main');
+                    auth.changeToAuth(() => navigate('/main'))
                 }, 1500);
 
             }).catch(err => {

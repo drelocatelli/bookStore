@@ -5,15 +5,20 @@ import Login from './Pages/Login';
 import Register from './Pages/Register';
 import Main from './Pages/Main';
 
+import {AuthProvider} from './Authentication/AuthProvider'
+import {PrivateRoute} from './Authentication/PrivateRoute'
+
+
 export default() => {
     return(
         <BrowserRouter>
-            <Routes>
-                <Route exact path="/" element={<Login/>} />
-                <Route exact path="/register" element={<Register/>} />
-                <Route exact path="/main" element={<Main />} />
-
-            </Routes>
+            <AuthProvider>
+                <Routes>
+                    <Route exact path={"/"} element={<Login/>} />
+                    <Route path={"/register"} element={<Register/>} />
+                    <Route path={"/main"} element={<PrivateRoute><Main /></PrivateRoute>} />
+                </Routes>
+            </AuthProvider>
         </BrowserRouter>
     )
 }

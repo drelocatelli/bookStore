@@ -26,7 +26,7 @@ public class Book {
 	@NotEmpty(message = "Cannot be null")
 	private String title;
 
-	@Column
+	@Column(length = 200)
 	@Lob
 	@NotEmpty(message = "Cannot be null")
 	private String description;

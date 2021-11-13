@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import Navbar from "../Components/Navbar";
+import NavbarMain from "../Components/NavbarMain";
 import {
     Box,
     Container,
@@ -13,12 +13,32 @@ import {
 } from "@material-ui/core";
 import Cookies from 'js-cookie';
 
+import {useAuth} from '../Authentication/AuthProvider';
 import ApiService from '../Service/ApiService';
 import {Alert} from "@mui/material";
 
 export default() => {
 
+    const auth = useAuth();
+
+    const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
+
     useEffect(() => {
+
+        // verify token
+        ApiService().get("/users/me", {
+            headers: {
+                'Authorization': `Bearer ${Cookies.get("token")}`,
+                'Access-Control-Allow-Origin': '*'
+            }
+        }).then(response => {
+            setEmail(response.data.email);
+            setName(response.data.name);
+        }).catch(err => {
+            console.log(err)
+        })
+    
         findBooks();
     }, []);
 
@@ -71,12 +91,16 @@ export default() => {
 
     return(
         <>
-            <Navbar />
+            <NavbarMain />
             <Box mt={18}>
                 <Container>
                     <Grid container spacing={2} justify="space-between">
+                        <Grid item md={12}>
+                            <Typography>Welcome, {name}</Typography>
+                            <br />
+                        </Grid>
                         <Grid item md={10}>
-                            <Typography variant={"h5"}>Listing all books</Typography>
+                            <Typography variant={"h5"}>Book List</Typography>
                         </Grid>
                         <Grid item md={2}>
                             <TextField sx={{float: "right"}} id="outlined-basic" label="Search book" value={search} onChange={e => {setSearch(e.target.value)}} onKeyUp={e => {
@@ -85,13 +109,7 @@ export default() => {
                                 }
                             }} variant="outlined" />
                         </Grid>
-                        <Grid item md={12}>
-                            {(message) &&
-                                <Alert severity={messageType}>
-                                    {message}
-                                </Alert>
-                            }
-                        </Grid>
+
                         <Grid item md={12}>
                             {(data.length >= 1) &&
                                 <>
@@ -102,19 +120,19 @@ export default() => {
                                             <TableHead>
                                                 <TableRow>
                                                     <TableCell>
-                                                        <Typography variant={"h5"}>Title</Typography>
+                                                        <Typography variant={"h6"}>Title</Typography>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Typography variant={"h5"}>Description</Typography>
+                                                        <Typography variant={"h6"}>Description</Typography>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Typography variant={"h5"}>Author</Typography>
+                                                        <Typography variant={"h6"}>Author</Typography>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Typography variant={"h5"}>Year</Typography>
+                                                        <Typography variant={"h6"}>Year</Typography>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Typography variant={"h5"}>Price</Typography>
+                                                        <Typography variant={"h6"}>Price</Typography>
                                                     </TableCell>
                                                 </TableRow>
                                             </TableHead>
@@ -130,7 +148,7 @@ export default() => {
                                                                 {book.description}
                                                             </TableCell>
                                                             <TableCell>
-                                                                {book.author}
+                                                                {(book.author) ? <>{book.author}</> : <i>Unknown</i> }
                                                             </TableCell>
                                                             <TableCell>
                                                                 {book.releaseYear}
