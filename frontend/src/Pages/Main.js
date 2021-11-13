@@ -19,25 +19,31 @@ import {Alert} from "@mui/material";
 export default() => {
 
     useEffect(() => {
-        allBooks();
+        findBooks();
     }, []);
 
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("");
 
-    function allBooks() {
-        // list all books
-        ApiService().get("/books", {
+    // list all books
+
+    function findBooks(search) {
+        let webservice = (search == undefined) ? '/books'  : `/books/search?title=${search}`;
+
+        ApiService().get(webservice, {
             headers: {
                 'Authorization': `Bearer ${Cookies.get('token')}`,
                 'Access-Control-Allow-Origin': '*'
             }
         })
             .then(response => {
-                setData(response.data)
+                // sort title alphabetically
+                let responseData = response.data.sort((a, b) => a.title.localeCompare(b.title) );
+                setData(responseData)
             }).catch(err => {
-            setMessageType("error");
-            setMessage(`An error occurred: ${err.response.data.message}`);
+                console.log(err.response)
+                setMessageType("error");
+                setMessage(`An error occurred: ${err.response.data.message}`);
         })
     }
 
@@ -47,32 +53,20 @@ export default() => {
     const [data, setData] = useState([]);
 
     function doSearch() {
-        console.log(search);
-
         if(!search) {
             setMessageType("info");
             setMessage("Listing all books");
-            allBooks();
+
+            findBooks();
             return;
         }else {
             setMessageType(null);
             setMessage(null);
+
+            findBooks(search);
         }
 
-        ApiService().get(`/books/search?title=${search}`, {
-            headers: {
-                'Authorization': `Bearer ${Cookies.get('token')}`,
-                'Access-Control-Allow-Origin': '*'
-            }
-            })
-            .then(response => {
-                setData(response.data)
-                console.log(response.data)
-            }).catch(err => {
-                console.log(err.response)
-                setMessageType("error");
-                setMessage(`An error occurred: ${err.response.data.message}`);
-        })
+
     }
 
     return(
@@ -146,7 +140,8 @@ export default() => {
                                                             </TableCell>
                                                         </TableRow>
                                                     )
-                                                })}
+                                                })
+                                                }
                                             </TableBody>
 
                                         </Table>
