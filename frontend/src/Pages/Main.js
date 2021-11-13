@@ -14,16 +14,11 @@ import {
 import Cookies from 'js-cookie';
 
 import ApiService from '../Service/ApiService';
-import {LoginService} from '../Service/LoginService';
 import {Alert} from "@mui/material";
 
 export default() => {
 
     useEffect(() => {
-
-        // check if user is logged
-        LoginService();
-
         allBooks();
     }, []);
 
