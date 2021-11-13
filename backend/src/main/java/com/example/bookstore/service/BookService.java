@@ -3,6 +3,7 @@ package com.example.bookstore.service;
 import com.example.bookstore.model.Book;
 import com.example.bookstore.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class BookService {
 		return repository.findAll();
 	}
 
-	public List<Book> findByTitleIgnoreCaseContaining(String title) {
+	public List<Book> bookSearch(String title) {
 		return repository.findByTitleIgnoreCaseContaining(title);
 	}
 

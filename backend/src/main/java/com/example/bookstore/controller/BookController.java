@@ -25,7 +25,7 @@ public class BookController {
 
 	@GetMapping(value = "/search")
 	public ResponseEntity<?> findAllByTitle(@RequestParam("title") String title) {
-		return ResponseEntity.ok(service.findByTitleIgnoreCaseContaining(title));
+		return ResponseEntity.ok(service.bookSearch(title));
 	}
 
 	@PostMapping("/new")
