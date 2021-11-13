@@ -5,8 +5,9 @@ import {Grid, Box, Container, Typography, TextField, Button, Link} from "@materi
 import ApiService from '../Service/ApiService';
 import {Alert} from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import Cookies from 'js-cookie';
 
-export const Home = () => {
+export default() => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -28,7 +29,7 @@ export const Home = () => {
         ApiService().post('/users/login', {email, password})
             .then(response => {
                 console.log(response);
-                window.localStorage.setItem("token", response.data.token);
+                Cookies.set('token', response.data.token);
                 setMessageType('success');
                 setMessage(`You're logged in`);
 
@@ -37,7 +38,7 @@ export const Home = () => {
                 }, 1500);
 
             }).catch(err => {
-                window.localStorage.clear();
+                Cookies.set('token', null);
                 console.log(err.response.data)
                 setMessageType('error')
                 setMessage(`An error occurred: ${err.response.data.error}`)

@@ -14,13 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.token.TokenService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.regex.Pattern;
 
@@ -40,6 +38,15 @@ public class AuthController {
 
 	@Autowired
 	private JwtUserDetailsService userDetailsService;
+
+	@GetMapping("/me")
+	public ResponseEntity<?> verifyUserLoggedIn() throws Exception {
+		// verify user logged in
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		return ResponseEntity.ok(userService.findByEmail(userDetails.getUsername()));
+
+	}
 
 	@PostMapping("/register")
 	public ResponseEntity<?> register(@RequestBody UserDTO dto) {

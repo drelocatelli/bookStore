@@ -11,24 +11,30 @@ import {
     TextField,
     Typography
 } from "@material-ui/core";
+import Cookies from 'js-cookie';
 
 import ApiService from '../Service/ApiService';
+import {LoginService} from '../Service/LoginService';
 import {Alert} from "@mui/material";
 
 export default() => {
 
-    const [message, setMessage] = useState("");
-    const [messageType, setMessageType] = useState("");
-
     useEffect(() => {
+
+        // check if user is logged
+        LoginService();
+
         allBooks();
     }, []);
+
+    const [message, setMessage] = useState("");
+    const [messageType, setMessageType] = useState("");
 
     function allBooks() {
         // list all books
         ApiService().get("/books", {
             headers: {
-                'Authorization': `Bearer ${window.localStorage.getItem("token")}`,
+                'Authorization': `Bearer ${Cookies.get('token')}`,
                 'Access-Control-Allow-Origin': '*'
             }
         })
@@ -60,7 +66,7 @@ export default() => {
 
         ApiService().get(`/books/search?title=${search}`, {
             headers: {
-                'Authorization': `Bearer ${window.localStorage.getItem("token")}`,
+                'Authorization': `Bearer ${Cookies.get('token')}`,
                 'Access-Control-Allow-Origin': '*'
             }
             })
