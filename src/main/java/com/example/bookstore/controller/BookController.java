@@ -37,6 +37,7 @@ public class BookController {
 					.title(dto.getTitle())
 					.description(dto.getDescription())
 					.releaseYear(dto.getReleaseYear())
+					.author(dto.getAuthor())
 					.price(dto.getPrice())
 					.build();
 

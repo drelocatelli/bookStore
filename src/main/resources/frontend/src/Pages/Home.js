@@ -4,6 +4,7 @@ import {Grid, Box, Container, Typography, TextField, Button, Link} from "@materi
 
 import ApiService from '../Service/ApiService';
 import {Alert} from "@mui/material";
+import {useNavigate} from "react-router-dom";
 
 export const Home = () => {
 
@@ -12,15 +13,31 @@ export const Home = () => {
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState('');
 
+    const navigate = useNavigate();
+
     function Login(e) {
         e.preventDefault();
+
+        if(!email || !password) {
+            setMessageType("info");
+            setMessage("Fields cannot be null");
+
+            return;
+        }
 
         ApiService().post('/users/login', {email, password})
             .then(response => {
                 console.log(response);
-                setMessageType('success')
-                setMessage(`You're logged in`)
+                window.localStorage.setItem("token", response.data.token);
+                setMessageType('success');
+                setMessage(`You're logged in`);
+
+                setTimeout(() => {
+                    navigate('/main');
+                }, 1500);
+
             }).catch(err => {
+                window.localStorage.clear();
                 console.log(err.response.data)
                 setMessageType('error')
                 setMessage(`An error occurred: ${err.response.data.error}`)
