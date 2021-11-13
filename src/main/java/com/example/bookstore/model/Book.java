@@ -36,6 +36,9 @@ public class Book {
 	private int releaseYear;
 
 	@Column
+	private String author;
+
+	@Column
 	@Min(value = 1)
 	private double price;
 

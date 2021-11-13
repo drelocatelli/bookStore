@@ -2,19 +2,21 @@ package com.example.bookstore.controller;
 
 import com.example.bookstore.dto.UserDTO;
 import com.example.bookstore.model.User;
-import com.example.bookstore.security.config.JwtUtil;
-import com.example.bookstore.security.dto.AuthenticationRequest;
-import com.example.bookstore.security.dto.AuthenticationResponse;
+import com.example.bookstore.security.dto.JwtRequest;
+import com.example.bookstore.security.dto.JwtResponse;
+import com.example.bookstore.security.service.JwtUserDetailsService;
+import com.example.bookstore.security.util.JwtTokenUtil;
 import com.example.bookstore.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.token.TokenService;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,20 +26,20 @@ import java.util.regex.Pattern;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth/")
+@RequestMapping("/api/users")
 public class AuthController {
 
 	@Autowired
-	private final AuthenticationManager authenticationManager;
-
-	@Autowired
-	private final UserDetailsService userDetailsService;
-
-	@Autowired
-	private final JwtUtil jwtUtil;
-
-	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+
+	@Autowired
+	private JwtTokenUtil jwtTokenUtil;
+
+	@Autowired
+	private JwtUserDetailsService userDetailsService;
 
 	@PostMapping("/register")
 	public ResponseEntity<?> register(@RequestBody UserDTO dto) {
@@ -69,18 +71,17 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) throws Exception {
-
-		try{
+	public ResponseEntity<?> authenticate(@RequestBody JwtRequest request) throws Exception {
+		try {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-		} catch(Exception ex) {
-			throw new Exception("Exception: ", ex);
+		} catch(Exception e) {
+			throw new Exception("Exception: ", e);
 		}
 
-		UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-		String token = jwtUtil.generateToken(userDetails);
+		final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+		final String token = jwtTokenUtil.generateToken(userDetails);
 
-		return ResponseEntity.ok(token);
+		return ResponseEntity.ok(new JwtResponse(token));
 
 	}
 
