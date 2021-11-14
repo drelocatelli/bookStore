@@ -24,7 +24,7 @@ export default() => {
 
                         <Grid item md={2} align={"right"}>
                             <Button color="inherit" href={"/main"}>Home</Button>
-                            <Button color="inherit" href={"/main"}>Add new book</Button>
+                            <Button color="inherit" href={"/addBook"}>Add new book</Button>
                             <Button color="inherit" onClick={auth.logout}>Logout</Button>
                         </Grid>
                     </Grid>

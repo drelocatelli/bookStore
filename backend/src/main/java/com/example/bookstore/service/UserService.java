@@ -21,7 +21,13 @@ public class UserService {
 		return repository.findByEmail(email).orElseThrow(() -> new Exception("Email doenst exists"));
 	}
 
-	public User create(User user) {
+	public User create(User user) throws Exception {
+		boolean emailExists = repository.existsByEmail(user.getEmail());
+
+		if(emailExists) {
+			throw new Exception("This email already exists");
+		}
+
 		String passwordEncrypted = passwordEncoder.encode(user.getPassword());
 		user.setPassword(passwordEncrypted);
 

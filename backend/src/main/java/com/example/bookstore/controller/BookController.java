@@ -3,6 +3,7 @@ package com.example.bookstore.controller;
 import com.example.bookstore.model.Book;
 import com.example.bookstore.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.example.bookstore.dto.BookDTO;
@@ -18,14 +19,9 @@ public class BookController {
 	@Autowired
 	private BookService service;
 
-	@GetMapping
-	public ResponseEntity<?> getAllBooks() {
-		return ResponseEntity.ok(service.findAll());
-	}
-
 	@GetMapping(value = "/search")
-	public ResponseEntity<?> findAllByTitle(@RequestParam("title") String title) {
-		return ResponseEntity.ok(service.bookSearch(title));
+	public ResponseEntity<?> findAllByTitle(Pageable pageable) {
+		return ResponseEntity.ok(service.bookSearch(pageable));
 	}
 
 	@PostMapping("/new")

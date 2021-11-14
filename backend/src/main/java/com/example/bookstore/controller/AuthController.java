@@ -51,6 +51,7 @@ public class AuthController {
 	@PostMapping("/register")
 	public ResponseEntity<?> register(@RequestBody UserDTO dto) {
 
+		// verify is empty
 		if(dto.getEmail().isEmpty() || dto.getName().isEmpty() || dto.getPassword().isEmpty()) {
 			return new ResponseEntity("Fields cannot be null", HttpStatus.UNPROCESSABLE_ENTITY);
 		}

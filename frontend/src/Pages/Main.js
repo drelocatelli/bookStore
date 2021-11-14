@@ -38,17 +38,21 @@ export default() => {
         }).catch(err => {
             console.log(err)
         })
-    
+
         findBooks();
     }, []);
 
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("");
 
-    // list all books
+    // Books
+
+    const [search, setSearch] = useState("");
+    const [data, setData] = useState([]);
+    const [searchedBooks, setSearchedBooks] = useState([]);
 
     function findBooks(search) {
-        let webservice = (search == undefined) ? '/books'  : `/books/search?title=${search}`;
+        let webservice = '/books/search';
 
         ApiService().get(webservice, {
             headers: {
@@ -57,35 +61,35 @@ export default() => {
             }
         })
             .then(response => {
+                console.log(response.data)
                 // sort title alphabetically
-                let responseData = response.data.sort((a, b) => a.title.localeCompare(b.title) );
-                setData(responseData)
+
+                let responseData = response.data.content.sort((a, b) => a.title.localeCompare(b.title));
+                setData(responseData);
+                setSearchedBooks(responseData);
             }).catch(err => {
-                console.log(err.response)
+                console.log(err);
                 setMessageType("error");
-                setMessage(`An error occurred: ${err.response.data.message}`);
+                setMessage(`An error occurred, see the console`);
         })
     }
 
     // search books
-
-    const [search, setSearch] = useState("");
-    const [data, setData] = useState([]);
-
     function doSearch() {
         if(!search) {
             setMessageType("info");
             setMessage("Listing all books");
 
-            findBooks();
+            setSearchedBooks(data);
             return;
         }else {
             setMessageType(null);
             setMessage(null);
 
-            findBooks(search);
+            // search by query like
+            let filtered = data.filter(f => f.title.toLowerCase().includes((search).toLowerCase().trim()));
+            setSearchedBooks(filtered);
         }
-
 
     }
 
@@ -111,9 +115,9 @@ export default() => {
                         </Grid>
 
                         <Grid item md={12}>
-                            {(data.length >= 1) &&
+                            {(searchedBooks.length >= 1) &&
                                 <>
-                                  <Typography>Found {data.length} results!</Typography>
+                                  <Typography>Found {searchedBooks.length} results!</Typography>
                                     <hr/>
                                     <TableContainer>
                                         <Table>
@@ -138,7 +142,7 @@ export default() => {
                                             </TableHead>
 
                                             <TableBody>
-                                                {(data).map(book => {
+                                                {(searchedBooks).map(book => {
                                                     return(
                                                         <TableRow>
                                                             <TableCell>
