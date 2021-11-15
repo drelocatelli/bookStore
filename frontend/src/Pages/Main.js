@@ -13,19 +13,22 @@ import {
 } from "@material-ui/core";
 import Cookies from 'js-cookie';
 
-import {useAuth} from '../Authentication/AuthProvider';
 import ApiService from '../Service/ApiService';
 import {Alert} from "@mui/material";
+import {useNavigate} from "react-router-dom";
 
 export default() => {
 
-    const auth = useAuth();
+    const navigate = useNavigate();
 
-    const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
+    const [user, setUser] = useState([]);
 
     useEffect(() => {
+        findBooks();
 
+    }, []);
+
+    function auth() {
         // verify token
         ApiService().get("/users/me", {
             headers: {
@@ -33,14 +36,15 @@ export default() => {
                 'Access-Control-Allow-Origin': '*'
             }
         }).then(response => {
-            setEmail(response.data.email);
-            setName(response.data.name);
+            setUser(response.data);
         }).catch(err => {
-            console.log(err)
+            setUser(null);
         })
 
-        findBooks();
-    }, []);
+        if(user == null) {
+            navigate("/");
+        }
+    }auth();
 
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("");
@@ -100,7 +104,7 @@ export default() => {
                 <Container>
                     <Grid container spacing={2} justify="space-between">
                         <Grid item md={12}>
-                            <Typography>Welcome, {name}</Typography>
+                            <Typography>Welcome, {user.name}</Typography>
                             <br />
                         </Grid>
                         <Grid item md={10}>
@@ -116,59 +120,59 @@ export default() => {
 
                         <Grid item md={12}>
                             {(searchedBooks.length >= 1) &&
-                                <>
-                                  <Typography>Found {searchedBooks.length} results!</Typography>
-                                    <hr/>
-                                    <TableContainer>
-                                        <Table>
-                                            <TableHead>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <Typography variant={"h6"}>Title</Typography>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Typography variant={"h6"}>Description</Typography>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Typography variant={"h6"}>Author</Typography>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Typography variant={"h6"}>Year</Typography>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Typography variant={"h6"}>Price</Typography>
-                                                    </TableCell>
-                                                </TableRow>
-                                            </TableHead>
+                            <>
+                                <Typography>Found {searchedBooks.length} results!</Typography>
+                                <hr/>
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>
+                                                    <Typography variant={"h6"}>Title</Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography variant={"h6"}>Description</Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography variant={"h6"}>Author</Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography variant={"h6"}>Year</Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography variant={"h6"}>Price</Typography>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableHead>
 
-                                            <TableBody>
-                                                {(searchedBooks).map(book => {
-                                                    return(
-                                                        <TableRow>
-                                                            <TableCell>
-                                                                {book.title}
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {book.description}
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {(book.author) ? <>{book.author}</> : <i>Unknown</i> }
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {book.releaseYear}
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                $ {book.price}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    )
-                                                })
-                                                }
-                                            </TableBody>
+                                        <TableBody>
+                                            {(searchedBooks).map(book => {
+                                                return(
+                                                    <TableRow>
+                                                        <TableCell>
+                                                            {book.title}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {book.description}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {(book.author) ? <>{book.author}</> : <i>Unknown</i> }
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {book.releaseYear}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            $ {book.price}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            })
+                                            }
+                                        </TableBody>
 
-                                        </Table>
-                                    </TableContainer>
-                                </>
+                                    </Table>
+                                </TableContainer>
+                            </>
                             }
                         </Grid>
                     </Grid>
@@ -176,4 +180,6 @@ export default() => {
             </Box>
         </>
     )
+
+
 }

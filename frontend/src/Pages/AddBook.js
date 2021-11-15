@@ -13,7 +13,6 @@ import {
 } from "@material-ui/core";
 import Cookies from 'js-cookie';
 
-import {useAuth} from '../Authentication/AuthProvider';
 import ApiService from '../Service/ApiService';
 import {Alert} from "@mui/material";
 

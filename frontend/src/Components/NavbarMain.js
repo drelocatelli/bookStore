@@ -1,5 +1,4 @@
 import {AppBar, Toolbar, Typography, makeStyles, Link, Button, Grid} from '@material-ui/core'
-import {useAuth} from '../Authentication/AuthProvider';
 
 const classes = makeStyles({
     appbar: {
@@ -8,8 +7,6 @@ const classes = makeStyles({
 })
 
 export default() => {
-
-    const auth = useAuth();
     
     return (
         <>
@@ -25,7 +22,7 @@ export default() => {
                         <Grid item md={2} align={"right"}>
                             <Button color="inherit" href={"/main"}>Home</Button>
                             <Button color="inherit" href={"/addBook"}>Add new book</Button>
-                            <Button color="inherit" onClick={auth.logout}>Logout</Button>
+                            <Button color="inherit" href={"/logout"}>Logout</Button>
                         </Grid>
                     </Grid>
                 </Toolbar>

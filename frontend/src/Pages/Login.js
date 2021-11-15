@@ -5,7 +5,6 @@ import {Grid, Box, Container, Typography, TextField, Button, Link} from "@materi
 import ApiService from '../Service/ApiService';
 import {Alert} from "@mui/material";
 import {useNavigate} from "react-router-dom";
-import {useAuth} from "../Authentication/AuthProvider";
 import Cookies from 'js-cookie';
 
 export default() => {
@@ -16,21 +15,20 @@ export default() => {
     const [messageType, setMessageType] = useState('');
 
     const navigate = useNavigate();
-
-    const auth = useAuth();
-
     // check if already logged
     useEffect(() => {
+
         ApiService().get('/users/me', {
             headers: {
-                'Authorization': `Bearer ${Cookies.get("token")}`, 
+                'Authorization': `Bearer ${Cookies.get("token")}`,
                 'Access-Control-Allow-Origin': '*'
             }
         }).then(response => {
-            auth.changeToAuth(() => navigate('/main'))
-        }).catch(err => {
-            auth.logout()
+            navigate("/main");
+        }).catch(() => {
+
         })
+
     }, [])
 
 
@@ -47,18 +45,13 @@ export default() => {
 
         ApiService().post('/users/login', {email, password})
             .then(response => {
-                console.log(response);
                 Cookies.set('token', response.data.token);
-                setMessageType('success');
-                setMessage(`You're logged in`);
-
-                setTimeout(() => {
-                    auth.changeToAuth(() => navigate('/main'))
-                }, 1500);
+                setMessageType(null);
+                setMessage(null);
+                navigate("/main");
 
             }).catch(err => {
                 Cookies.set('token', null);
-                console.log(err.response.data)
                 setMessageType('error')
                 setMessage(`An error occurred: ${err.response.data.error}`)
         });
