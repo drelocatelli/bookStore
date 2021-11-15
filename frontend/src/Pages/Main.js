@@ -14,7 +14,7 @@ import {
 import Cookies from 'js-cookie';
 
 import ApiService from '../Service/ApiService';
-import {Alert} from "@mui/material";
+import {Alert, Pagination} from "@mui/material";
 import {Navigate, useNavigate} from "react-router-dom";
 
 export default() => {
@@ -54,9 +54,12 @@ export default() => {
     const [search, setSearch] = useState("");
     const [data, setData] = useState([]);
     const [searchedBooks, setSearchedBooks] = useState([]);
+    const [totalBooks, setTotalBooks] = useState();
+    const [booksElements, setBooksElements] = useState();
 
-    function findBooks(search) {
-        let webservice = '/books/search';
+    function findBooks(page) {
+        let size = 10;
+        let webservice = (page != undefined) ? `/books/search?size=${size}&page=${page}` : `/books/search?size=${size}&page=0`;
 
         ApiService().get(webservice, {
             headers: {
@@ -70,7 +73,9 @@ export default() => {
 
                 let responseData = response.data.content.sort((a, b) => a.title.localeCompare(b.title));
                 setData(responseData);
+                setTotalBooks(response.data.totalElements);
                 setSearchedBooks(responseData);
+                setBooksElements(response.data.numberOfElements);
             }).catch(err => {
                 console.log(err);
                 setMessageType("error");
@@ -103,7 +108,7 @@ export default() => {
         return(
             <>
                 <NavbarMain />
-                <Box mt={18}>
+                <Box mt={18} mb={10}>
                     <Container>
                         <Grid container spacing={2} justify="space-between">
                             <Grid item md={12}>
@@ -124,7 +129,7 @@ export default() => {
                             <Grid item md={12}>
                                 {(searchedBooks.length >= 1) &&
                                 <>
-                                    <Typography>Found {searchedBooks.length} results!</Typography>
+                                    <Typography>Found {totalBooks} results!</Typography>
                                     <hr/>
                                     <TableContainer>
                                         <Table>
@@ -178,6 +183,16 @@ export default() => {
                                 </>
                                 }
                             </Grid>
+                            {(searchedBooks.length >= 1) &&
+                                <>
+                                    <Grid item md={10}>
+                                        <Typography>Pagination: {booksElements} books</Typography>
+                                    </Grid>
+                                    <Grid item md={2}>
+                                        <Pagination count={searchedBooks.totalPages} />
+                                    </Grid>
+                                </>
+                            }
                         </Grid>
                     </Container>
                 </Box>

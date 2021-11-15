@@ -33,13 +33,13 @@ public class Book {
 
 	@Column
 	@Min(value = 1000, message = "Min value: 1000")
-	private int releaseYear;
+	private Integer releaseYear;
 
 	@Column
 	private String author;
 
 	@Column
 	@Min(value = 1)
-	private double price;
+	private Double price;
 
 }

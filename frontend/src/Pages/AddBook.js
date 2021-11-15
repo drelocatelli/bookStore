@@ -46,25 +46,35 @@ export default() => {
     const [year, setYear] = useState();
     const [price, setPrice] = useState();
 
+    const [message, setMessage] = useState();
+    const [messageType, setMessageType] = useState();
+
     function addBook(e) {
         e.preventDefault();
 
-        if(!title || !description || !year || price) {
-            console.log("an error occurred");
-        }else {
-            ApiService().post("/books/new", {
-                headers: {
-                    'Authorization': `Bearer ${Cookies.get("token")}`,
-                    'Access-Control-Allow-Origin': '*'
-                }
-            }, {
-                title, description, author, year, price
-            }).then(response => {
-                console.log(response);
-            }).catch(err => {
-                console.log(err);
-            })
+        let data = {
+            author,
+            description,
+            price,
+            title,
+            releaseYear: year
         }
+
+        ApiService().post("/books/new", data , {
+            headers: {
+                'Authorization': `Bearer ${Cookies.get("token")}`,
+                'Access-Control-Allow-Origin': '*'
+            }
+        }).then(response => {
+            console.log(response);
+            setMessageType("success");
+            setMessage("Success! Your book is added");
+        }).catch(err => {
+            console.log(err);
+            setMessageType("error");
+            setMessage("An error occurred, see the console");
+        })
+
     }
 
     if(!logged) {
@@ -83,6 +93,13 @@ export default() => {
                             <Grid item md={12}>
                                 <Typography>You can add new book below in the form.</Typography>
                             </Grid>
+                            {(message) &&
+                                <Grid item xs={12}>
+                                    <Alert severity={messageType}>
+                                        {message}
+                                    </Alert>
+                                </Grid>
+                            }
                             <Grid item md={12}>
                                 <form onSubmit={addBook}>
                                     <TableContainer>
@@ -111,7 +128,7 @@ export default() => {
                                                     <TextField label={"Price"} value={price} onChange={e => setPrice(e.target.value)} style={{width: '100%'}}></TextField>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <Button variant="contained" style={{background:"#8BC34A", color:"#fff", marginTop:"25px"}}>Insert book</Button>
+                                                    <Button variant="contained" style={{background:"#8BC34A", color:"#fff", marginTop:"25px"}} type={"submit"}>Insert book</Button>
                                                 </TableRow>
                                             </TableHead>
                                         </Table>

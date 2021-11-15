@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.example.bookstore.dto.BookDTO;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,21 +24,27 @@ public class BookController {
 	}
 
 	@PostMapping("/new")
-	public ResponseEntity<?> newBook(@Valid  @RequestBody BookDTO dto, BindingResult bindingResult) {
+	public ResponseEntity<?> newBook(@RequestBody BookDTO dto) {
+
+		if(
+				dto.getTitle().isEmpty() ||
+				dto.getDescription().isEmpty() ||
+				dto.getPrice().isNaN()
+		) {
+			return new ResponseEntity("Please send valid values", HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+
+		Book book = Book.builder()
+				.title(dto.getTitle())
+				.description(dto.getDescription())
+				.releaseYear(dto.getReleaseYear())
+				.author(dto.getAuthor())
+				.price(dto.getPrice())
+				.build();
 
 		try {
-
-			Book book = Book.builder()
-					.title(dto.getTitle())
-					.description(dto.getDescription())
-					.releaseYear(dto.getReleaseYear())
-					.author(dto.getAuthor())
-					.price(dto.getPrice())
-					.build();
-
 			Book books = service.saveBook(book);
-
-			return ResponseEntity.ok(books);
+			return new ResponseEntity(books, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
