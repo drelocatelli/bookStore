@@ -197,9 +197,7 @@ export default() => {
                                     <Grid item md={1}>
                                         <TextField select label={"Listing " + booksElements} fullWidth onChange={selectPages} value={booksElements}>
                                             <MenuItem value={5}>5</MenuItem>
-                                            <MenuItem value={10}>10</MenuItem>
-                                            <MenuItem value={15}>15</MenuItem>
-                                            <MenuItem value={20}>20</MenuItem>
+                                            <MenuItem value={50}>50</MenuItem>
                                         </TextField>
                                     </Grid>
                                     <Grid item md={11}>
