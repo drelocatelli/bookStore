@@ -3,13 +3,12 @@ package com.example.bookstore.controller;
 import com.example.bookstore.model.Book;
 import com.example.bookstore.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.example.bookstore.dto.BookDTO;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/books")
@@ -19,8 +18,11 @@ public class BookController {
 	private BookService service;
 
 	@GetMapping(value = "/search")
-	public ResponseEntity<?> findAllByTitle(Pageable pageable) {
-		return ResponseEntity.ok(service.bookSearch(pageable));
+	public ResponseEntity<?> findBook(@RequestParam("title") String title, Pageable pageable) {
+
+		Page<Book> books = service.findBookPageable(title, pageable);
+
+		return ResponseEntity.ok(books);
 	}
 
 	@PostMapping("/new")
@@ -29,7 +31,8 @@ public class BookController {
 		if(
 				dto.getTitle().isEmpty() ||
 				dto.getDescription().isEmpty() ||
-				dto.getPrice().isNaN()
+				dto.getPrice() == null ||
+				dto.getReleaseYear() == null
 		) {
 			return new ResponseEntity("Please send valid values", HttpStatus.UNPROCESSABLE_ENTITY);
 		}

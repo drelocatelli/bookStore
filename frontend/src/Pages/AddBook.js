@@ -12,6 +12,7 @@ import Cookies from 'js-cookie';
 import ApiService from '../Service/ApiService';
 import {Alert} from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import AuthCheck from "../Authentication/AuthCheck";
 
 export default() => {
 
@@ -20,24 +21,18 @@ export default() => {
     const [user, setUser] = useState([]);
     const [logged, setLogged] = useState();
 
-    useEffect(() => {
-        // --------------------------------------- verify token
-        ApiService().get("/users/me", {
-            headers: {
-                'Authorization': `Bearer ${Cookies.get("token")}`,
-                'Access-Control-Allow-Origin': '*'
-            }
-        }).then(response => {
-            setUser(response.data);
+    useEffect(async () => {
+
+        const authentication = await AuthCheck();
+        if (authentication.status == 200) {
+            setUser(authentication.data);
             setLogged(true);
-        }).catch(err => {
+        } else {
             setUser(null);
             setLogged(false);
-        })
+        }
 
     }, []);
-
-
 
     // add new book
     const [title, setTitle] = useState();
@@ -56,7 +51,7 @@ export default() => {
             author,
             description,
             price,
-            title,
+            title: (title) ? title.trim() : undefined,
             releaseYear: year
         }
 
@@ -70,9 +65,13 @@ export default() => {
             setMessageType("success");
             setMessage("Success! Your book is added");
         }).catch(err => {
-            console.log(err);
             setMessageType("error");
-            setMessage("An error occurred, see the console");
+            if(err.response.status == 422) {
+                setMessage(err.response.data);
+
+            }else {
+                setMessage("An error occurred, see the console");
+            }
         })
 
     }

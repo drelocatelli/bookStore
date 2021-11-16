@@ -17,6 +17,8 @@ import ApiService from '../Service/ApiService';
 import {Alert, Pagination} from "@mui/material";
 import {Navigate, useNavigate} from "react-router-dom";
 
+import AuthCheck from '../Authentication/AuthCheck';
+
 export default() => {
 
     const navigate = useNavigate();
@@ -24,81 +26,63 @@ export default() => {
     const [user, setUser] = useState([]);
     const [logged, setLogged] = useState();
 
-    useEffect(() => {
+    useEffect(async () => {
 
-        // --------------------------------------- verify token
-        ApiService().get("/users/me", {
-            headers: {
-                'Authorization': `Bearer ${Cookies.get("token")}`,
-                'Access-Control-Allow-Origin': '*'
-            }
-        }).then(response => {
-            setUser(response.data);
+        const authentication = await AuthCheck();
+        if(authentication.status == 200) {
+            setUser(authentication.data);
             setLogged(true);
-        }).catch(err => {
+        }else {
             setUser(null);
             setLogged(false);
-        })
+        }
 
         findBooks();
 
     }, []);
 
-
-
-    const [message, setMessage] = useState("");
-    const [messageType, setMessageType] = useState("");
-
     // Books
 
     const [search, setSearch] = useState("");
-    const [data, setData] = useState([]);
     const [searchedBooks, setSearchedBooks] = useState([]);
     const [totalBooks, setTotalBooks] = useState();
     const [booksElements, setBooksElements] = useState();
 
-    function findBooks(page) {
-        let size = 10;
-        let webservice = (page != undefined) ? `/books/search?size=${size}&page=${page}` : `/books/search?size=${size}&page=0`;
+    const [page, setPage] = useState(1);
 
-        ApiService().get(webservice, {
+    function paginate(event, value) {
+        let page = parseInt(value) - 1;
+
+        findBooks(page);
+    }
+
+    async function findBooks(page, perpage, findTitle) {
+        let title = (findTitle != undefined) ? findTitle : "";
+        let size = (perpage != undefined) ? perpage : 5;
+        let webservice = (page != undefined) ? `/books/search?title=${title}&page=${page}&size=${size}` : `/books/search?title=${title}&page=0&size=${size}`;
+
+        const response =  await ApiService().get(webservice, {
             headers: {
                 'Authorization': `Bearer ${Cookies.get('token')}`,
                 'Access-Control-Allow-Origin': '*'
             }
         })
-            .then(response => {
-                console.log(response.data)
-                // sort title alphabetically
 
-                let responseData = response.data.content.sort((a, b) => a.title.localeCompare(b.title));
-                setData(responseData);
-                setTotalBooks(response.data.totalElements);
-                setSearchedBooks(responseData);
-                setBooksElements(response.data.numberOfElements);
-            }).catch(err => {
-                console.log(err);
-                setMessageType("error");
-                setMessage(`An error occurred, see the console`);
-        })
+        // let responseData = response.data.content.sort((a, b) => a.title.localeCompare(b.title));
+        setTotalBooks(response.data.totalElements);
+        setSearchedBooks(response.data.content);
+        setBooksElements(response.data.numberOfElements);
+        setPage(response.data.totalPages);
+
+        return response.data;
+
     }
 
     // search books
-    function doSearch() {
-        if(!search) {
-            setMessageType("info");
-            setMessage("Listing all books");
+    async function doSearch() {
 
-            setSearchedBooks(data);
-            return;
-        }else {
-            setMessageType(null);
-            setMessage(null);
-
-            // search by query like
-            let filtered = data.filter(f => f.title.toLowerCase().includes((search).toLowerCase().trim()));
-            setSearchedBooks(filtered);
-        }
+        const books = await findBooks(0, search ? 2000 : undefined, search);
+        setSearchedBooks(books.content);
 
     }
 
@@ -186,10 +170,10 @@ export default() => {
                             {(searchedBooks.length >= 1) &&
                                 <>
                                     <Grid item md={10}>
-                                        <Typography>Pagination: {booksElements} books</Typography>
+                                        <Typography>Books per page: {booksElements}</Typography>
                                     </Grid>
                                     <Grid item md={2}>
-                                        <Pagination count={searchedBooks.totalPages} />
+                                        <Pagination count={page} color="primary" onChange={paginate} />
                                     </Grid>
                                 </>
                             }
