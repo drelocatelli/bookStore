@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import NavbarMain from "../Components/NavbarMain";
 import {
     Box,
@@ -18,8 +18,11 @@ import {Alert, Pagination} from "@mui/material";
 import {Navigate, useNavigate} from "react-router-dom";
 
 import AuthCheck from '../Authentication/AuthCheck';
+import {UserContext} from "../Authentication/UserContext";
 
 export default() => {
+
+    const auth = useContext(UserContext);
 
     const navigate = useNavigate();
 
@@ -27,6 +30,8 @@ export default() => {
     const [logged, setLogged] = useState();
 
     useEffect(async () => {
+
+        console.log(auth)
 
         const authentication = await AuthCheck();
         if(authentication.status == 200) {
