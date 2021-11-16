@@ -13,17 +13,22 @@ import ApiService from '../Service/ApiService';
 import {Alert} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import AuthCheck from "../Authentication/AuthCheck";
+import Loading from "../Components/Loading";
 
 export default() => {
 
     const navigate = useNavigate();
 
+    const [loadAuth, setLoadAuth] = useState(true);
     const [user, setUser] = useState([]);
     const [logged, setLogged] = useState();
 
     useEffect(async () => {
 
         const authentication = await AuthCheck();
+        setTimeout(() => {
+            setLoadAuth(false);
+        }, 900)
         if (authentication.status == 200) {
             setUser(authentication.data);
             setLogged(true);
@@ -74,6 +79,12 @@ export default() => {
             }
         })
 
+    }
+
+    if(loadAuth) {
+        return (
+            <Loading></Loading>
+        )
     }
 
     if(!logged) {

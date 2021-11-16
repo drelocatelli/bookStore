@@ -1,9 +1,9 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import NavbarMain from "../Components/NavbarMain";
 import {
     Box,
-    Container, FormControl,
-    Grid, InputLabel, MenuItem, Select,
+    Container,
+    Grid, MenuItem,
     Table, TableBody,
     TableCell,
     TableContainer, TableHead,
@@ -18,26 +18,26 @@ import {Alert, Pagination} from "@mui/material";
 import {Navigate, useNavigate} from "react-router-dom";
 
 import AuthCheck from '../Authentication/AuthCheck';
-import {UserContext} from "../Authentication/UserContext";
+import Loading from "../Components/Loading";
 
 export default() => {
 
-    const auth = useContext(UserContext);
-
     const navigate = useNavigate();
 
+    const [loadAuth, setLoadAuth] = useState(true);
     const [user, setUser] = useState([]);
-    const [logged, setLogged] = useState();
+    const [logged, setLogged] = useState(false);
 
     useEffect(async () => {
 
-        console.log(auth)
-
         const authentication = await AuthCheck();
-        if(authentication.status == 200) {
+        setTimeout(() => {
+            setLoadAuth(false);
+        }, 900)
+        if (authentication.status == 200) {
             setUser(authentication.data);
             setLogged(true);
-        }else {
+        } else {
             setUser(null);
             setLogged(false);
         }
@@ -103,6 +103,12 @@ export default() => {
         const books = await findBooks(0, search ? 2000 : undefined, search);
         setSearchedBooks(books.content);
 
+    }
+
+    if(loadAuth) {
+        return (
+            <Loading></Loading>
+        )
     }
 
     if(!logged) {
