@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import NavbarMain from "../Components/NavbarMain";
 import {
     Box,
-    Container,
-    Grid,
+    Container, FormControl,
+    Grid, InputLabel, MenuItem, Select,
     Table, TableBody,
     TableCell,
     TableContainer, TableHead,
@@ -43,22 +43,36 @@ export default() => {
 
     // Books
 
+    const elements = 5;
+
     const [search, setSearch] = useState("");
     const [searchedBooks, setSearchedBooks] = useState([]);
     const [totalBooks, setTotalBooks] = useState();
-    const [booksElements, setBooksElements] = useState();
+    const [booksElements, setBooksElements] = useState(elements);
 
     const [page, setPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState();
 
     function paginate(event, value) {
         let page = parseInt(value) - 1;
 
+        setBooksElements(elements);
+
         findBooks(page);
+    }
+
+    function selectPages(e) {
+        let pageCount = e.target.value;
+        let selectedPage = (currentPage != undefined) ? currentPage : 0;
+
+        setBooksElements(pageCount);
+
+        findBooks(selectedPage, pageCount);
     }
 
     async function findBooks(page, perpage, findTitle) {
         let title = (findTitle != undefined) ? findTitle : "";
-        let size = (perpage != undefined) ? perpage : 5;
+        let size = (perpage != undefined) ? perpage : elements;
         let webservice = (page != undefined) ? `/books/search?title=${title}&page=${page}&size=${size}` : `/books/search?title=${title}&page=0&size=${size}`;
 
         const response =  await ApiService().get(webservice, {
@@ -71,8 +85,8 @@ export default() => {
         // let responseData = response.data.content.sort((a, b) => a.title.localeCompare(b.title));
         setTotalBooks(response.data.totalElements);
         setSearchedBooks(response.data.content);
-        setBooksElements(response.data.numberOfElements);
         setPage(response.data.totalPages);
+        setCurrentPage(page);
 
         return response.data;
 
@@ -169,11 +183,16 @@ export default() => {
                             </Grid>
                             {(searchedBooks.length >= 1) &&
                                 <>
-                                    <Grid item md={10}>
-                                        <Typography>Books per page: {booksElements}</Typography>
+                                    <Grid item md={1}>
+                                        <TextField select label={"Listing " + booksElements} fullWidth onChange={selectPages} value={booksElements}>
+                                            <MenuItem value={5}>5</MenuItem>
+                                            <MenuItem value={10}>10</MenuItem>
+                                            <MenuItem value={15}>15</MenuItem>
+                                            <MenuItem value={20}>20</MenuItem>
+                                        </TextField>
                                     </Grid>
-                                    <Grid item md={2}>
-                                        <Pagination count={page} color="primary" onChange={paginate} />
+                                    <Grid item md={11}>
+                                        <Pagination style={{float:"right"}} count={page} color="primary" onChange={paginate} />
                                     </Grid>
                                 </>
                             }
