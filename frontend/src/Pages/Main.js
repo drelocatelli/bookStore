@@ -15,7 +15,7 @@ import Cookies from 'js-cookie';
 
 import ApiService from '../Service/ApiService';
 import {Alert, Pagination} from "@mui/material";
-import {Navigate, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 import AuthCheck from '../Authentication/AuthCheck';
 import Loading from "../Components/Loading";
@@ -30,18 +30,23 @@ export default() => {
 
     useEffect(async () => {
 
-        const authentication = await AuthCheck();
-        setTimeout(() => {
-            setLoadAuth(false);
-        }, 900)
-        if (authentication.status == 200) {
-            setUser(authentication.data);
-            setLogged(true);
-        } else {
-            setUser(null);
-            setLogged(false);
-        }
+        try{
+            const authentication = await AuthCheck();
 
+            // tela de carregamento
+            setTimeout(() => {
+                setLoadAuth(false);
+            }, 1200)
+
+            if (authentication.status == 200) {
+                setUser(authentication.data);
+                setLogged(true);
+            }
+    
+        }catch(e) {
+            navigate('/?error=true')
+        }
+        
         findBooks();
 
     }, []);
